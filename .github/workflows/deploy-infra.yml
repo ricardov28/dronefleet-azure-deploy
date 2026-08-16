@@ -58,10 +58,15 @@ jobs:
             az bicep build --file main.bicep --outfile /tmp/azuredeploy.json
             az bicep build-params --file main.bicepparam --stdout >/dev/null
             az bicep build --file postdeploy.bicep --stdout >/dev/null
-            cmp /tmp/azuredeploy.json azuredeploy.json || {
-              echo 'azuredeploy.json is stale. Rebuild it from main.bicep before publishing.'
-              exit 1
-            }
+            python3 - <<'PY'
+            import json
+            with open('/tmp/azuredeploy.json', encoding='utf-8-sig') as generated:
+              expected = json.load(generated)
+            with open('azuredeploy.json', encoding='utf-8-sig') as committed:
+              actual = json.load(committed)
+            if actual != expected:
+              raise SystemExit('azuredeploy.json is stale. Rebuild it from main.bicep before publishing.')
+            PY
 
       - name: Test telemetry forwarder
         working-directory: apps/forwarder

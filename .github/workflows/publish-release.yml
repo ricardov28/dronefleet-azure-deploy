@@ -19,10 +19,15 @@ jobs:
         with:
           inlineScript: |
             az bicep build --file main.bicep --outfile /tmp/azuredeploy.json
-            cmp /tmp/azuredeploy.json azuredeploy.json || {
-              echo 'azuredeploy.json does not match main.bicep.'
-              exit 1
-            }
+            python3 - <<'PY'
+            import json
+            with open('/tmp/azuredeploy.json', encoding='utf-8-sig') as generated:
+                expected = json.load(generated)
+            with open('azuredeploy.json', encoding='utf-8-sig') as committed:
+                actual = json.load(committed)
+            if actual != expected:
+                raise SystemExit('azuredeploy.json does not match main.bicep.')
+            PY
 
       - name: Publish GitHub release
         env:
