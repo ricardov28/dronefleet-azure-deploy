@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.46.1.21595",
-      "templateHash": "4013425301563003642"
+      "templateHash": "15912458709911539376"
     }
   },
   "parameters": {
@@ -68,14 +68,40 @@
       "type": "string",
       "defaultValue": "eastus2",
       "metadata": {
-        "description": "Microsoft Foundry region. East US 2 is the default because it supports both gpt-4o and gpt-realtime."
+        "description": "Microsoft Foundry region. East US 2 is the default because it supports both the snapshot-analysis and real-time voice models."
       }
     },
-    "foundryGpt4oModelVersion": {
+    "foundryChatDeploymentName": {
       "type": "string",
-      "defaultValue": "2024-11-20",
+      "defaultValue": "vision-chat",
       "metadata": {
-        "description": "Foundry gpt-4o model version."
+        "description": "Stable deployment name used by the backend for snapshot visual analysis."
+      }
+    },
+    "foundryChatModelName": {
+      "type": "string",
+      "defaultValue": "gpt-5.1",
+      "metadata": {
+        "description": "Foundry model used for snapshot visual analysis."
+      }
+    },
+    "foundryChatModelVersion": {
+      "type": "string",
+      "defaultValue": "2025-11-13",
+      "metadata": {
+        "description": "Foundry snapshot-analysis model version."
+      }
+    },
+    "foundryChatVersionUpgradeOption": {
+      "type": "string",
+      "defaultValue": "OnceCurrentVersionExpired",
+      "allowedValues": [
+        "NoAutoUpgrade",
+        "OnceCurrentVersionExpired",
+        "OnceNewDefaultVersionAvailable"
+      ],
+      "metadata": {
+        "description": "Automatic version upgrade policy within the selected snapshot-analysis model family. Cross-family migrations still require a template release."
       }
     },
     "foundryRealtimeModelVersion": {
@@ -248,8 +274,17 @@
           "foundryLocation": {
             "value": "[parameters('foundryLocation')]"
           },
-          "foundryGpt4oModelVersion": {
-            "value": "[parameters('foundryGpt4oModelVersion')]"
+          "foundryChatDeploymentName": {
+            "value": "[parameters('foundryChatDeploymentName')]"
+          },
+          "foundryChatModelName": {
+            "value": "[parameters('foundryChatModelName')]"
+          },
+          "foundryChatModelVersion": {
+            "value": "[parameters('foundryChatModelVersion')]"
+          },
+          "foundryChatVersionUpgradeOption": {
+            "value": "[parameters('foundryChatVersionUpgradeOption')]"
           },
           "foundryRealtimeModelVersion": {
             "value": "[parameters('foundryRealtimeModelVersion')]"
@@ -307,7 +342,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.46.1.21595",
-              "templateHash": "15868398737371834708"
+              "templateHash": "5687817256359094818"
             }
           },
           "parameters": {
@@ -343,9 +378,21 @@
               "type": "string",
               "defaultValue": "eastus2"
             },
-            "foundryGpt4oModelVersion": {
+            "foundryChatDeploymentName": {
               "type": "string",
-              "defaultValue": "2024-11-20"
+              "defaultValue": "vision-chat"
+            },
+            "foundryChatModelName": {
+              "type": "string",
+              "defaultValue": "gpt-5.1"
+            },
+            "foundryChatModelVersion": {
+              "type": "string",
+              "defaultValue": "2025-11-13"
+            },
+            "foundryChatVersionUpgradeOption": {
+              "type": "string",
+              "defaultValue": "OnceCurrentVersionExpired"
             },
             "foundryRealtimeModelVersion": {
               "type": "string",
@@ -3841,11 +3888,20 @@
                   "networkIsolation": {
                     "value": "[parameters('networkIsolation')]"
                   },
-                  "gpt4oModelVersion": {
-                    "value": "[parameters('foundryGpt4oModelVersion')]"
+                  "chatDeploymentName": {
+                    "value": "[parameters('foundryChatDeploymentName')]"
                   },
-                  "gpt4oCapacity": {
+                  "chatModelName": {
+                    "value": "[parameters('foundryChatModelName')]"
+                  },
+                  "chatModelVersion": {
+                    "value": "[parameters('foundryChatModelVersion')]"
+                  },
+                  "chatCapacity": {
                     "value": "[parameters('foundryModelCapacity')]"
+                  },
+                  "chatVersionUpgradeOption": {
+                    "value": "[parameters('foundryChatVersionUpgradeOption')]"
                   },
                   "realtimeModelVersion": {
                     "value": "[parameters('foundryRealtimeModelVersion')]"
@@ -3861,7 +3917,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.46.1.21595",
-                      "templateHash": "2649202868404690295"
+                      "templateHash": "15858257935633923326"
                     }
                   },
                   "parameters": {
@@ -3897,21 +3953,34 @@
                       "type": "string",
                       "defaultValue": "privateEndpoint"
                     },
-                    "gpt4oDeploymentName": {
+                    "chatDeploymentName": {
                       "type": "string",
-                      "defaultValue": "gpt-4o"
+                      "defaultValue": "vision-chat"
                     },
-                    "gpt4oModelVersion": {
+                    "chatModelName": {
                       "type": "string",
-                      "defaultValue": "2024-11-20"
+                      "defaultValue": "gpt-5.1"
                     },
-                    "gpt4oSkuName": {
+                    "chatModelVersion": {
+                      "type": "string",
+                      "defaultValue": "2025-11-13"
+                    },
+                    "chatSkuName": {
                       "type": "string",
                       "defaultValue": "GlobalStandard"
                     },
-                    "gpt4oCapacity": {
+                    "chatCapacity": {
                       "type": "int",
                       "defaultValue": 10
+                    },
+                    "chatVersionUpgradeOption": {
+                      "type": "string",
+                      "defaultValue": "OnceCurrentVersionExpired",
+                      "allowedValues": [
+                        "NoAutoUpgrade",
+                        "OnceCurrentVersionExpired",
+                        "OnceNewDefaultVersionAvailable"
+                      ]
                     },
                     "realtimeDeploymentName": {
                       "type": "string",
@@ -3991,18 +4060,18 @@
                     {
                       "type": "Microsoft.CognitiveServices/accounts/deployments",
                       "apiVersion": "2026-05-01",
-                      "name": "[format('{0}/{1}', parameters('name'), parameters('gpt4oDeploymentName'))]",
+                      "name": "[format('{0}/{1}', parameters('name'), parameters('chatDeploymentName'))]",
                       "sku": {
-                        "name": "[parameters('gpt4oSkuName')]",
-                        "capacity": "[parameters('gpt4oCapacity')]"
+                        "name": "[parameters('chatSkuName')]",
+                        "capacity": "[parameters('chatCapacity')]"
                       },
                       "properties": {
                         "model": {
                           "format": "OpenAI",
-                          "name": "gpt-4o",
-                          "version": "[parameters('gpt4oModelVersion')]"
+                          "name": "[parameters('chatModelName')]",
+                          "version": "[parameters('chatModelVersion')]"
                         },
-                        "versionUpgradeOption": "NoAutoUpgrade"
+                        "versionUpgradeOption": "[parameters('chatVersionUpgradeOption')]"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.CognitiveServices/accounts', parameters('name'))]",
@@ -4027,7 +4096,7 @@
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.CognitiveServices/accounts', parameters('name'))]",
-                        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('name'), parameters('gpt4oDeploymentName'))]"
+                        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('name'), parameters('chatDeploymentName'))]"
                       ]
                     },
                     {
@@ -4179,7 +4248,8 @@
                         }
                       },
                       "dependsOn": [
-                        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('name'))]"
+                        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('name'))]",
+                        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('name'), parameters('realtimeDeploymentName'))]"
                       ]
                     }
                   ],
@@ -4204,9 +4274,9 @@
                       "type": "string",
                       "value": "[format('https://{0}.cognitiveservices.azure.com', parameters('name'))]"
                     },
-                    "gpt4oDeploymentName": {
+                    "chatDeploymentName": {
                       "type": "string",
-                      "value": "[parameters('gpt4oDeploymentName')]"
+                      "value": "[parameters('chatDeploymentName')]"
                     },
                     "realtimeDeploymentName": {
                       "type": "string",
@@ -4608,7 +4678,7 @@
                     "value": "NODE|22-lts"
                   },
                   "extraAppSettings": {
-                    "value": "[concat(createArray(createObject('name', 'PUBLIC_API_BASE_URL', 'value', variables('backendUrl')), createObject('name', 'CALLBACK_URI', 'value', format('{0}/filestatus', variables('backendUrl'))), createObject('name', 'WEB_PUBSUB_CONNECTION_STRING', 'value', format('{0}web-pubsub-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'HUB_NAME', 'value', reference(resourceId('Microsoft.Resources/deployments', 'webpubsub'), '2025-04-01').outputs.hubName.value), createObject('name', 'IOTHUB_SERVICE_CONNECTION_STRING', 'value', format('{0}iothub-service-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'IOTHUB_DEVICE_ID', 'value', parameters('primaryDeviceId')), createObject('name', 'COSMOS_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'cosmos'), '2025-04-01').outputs.endpoint.value), createObject('name', 'COSMOS_DATABASE', 'value', reference(resourceId('Microsoft.Resources/deployments', 'cosmos'), '2025-04-01').outputs.databaseName.value), createObject('name', 'COSMOS_AUTH', 'value', 'aad'), createObject('name', 'ENABLE_AZURE_STORAGE', 'value', 'true'), createObject('name', 'AZURE_STORAGE_ACCOUNT_NAME', 'value', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.name.value), createObject('name', 'AZURE_STORAGE_DATALAKE_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.dfsEndpoint.value), createObject('name', 'AZURE_COMMUNICATION_SERVICES_CONNECTION_STRING', 'value', format('{0}acs-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'ACS_RESOURCE_NAME', 'value', variables('names').acs), createObject('name', 'AZURE_MAPS_CLIENT_ID', 'value', reference(resourceId('Microsoft.Resources/deployments', 'maps'), '2025-04-01').outputs.clientId.value), createObject('name', 'AZURE_MAPS_SUBSCRIPTION_KEY', 'value', format('{0}azure-maps-subscription-key/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'ENTRA_API_CLIENT_ID', 'value', parameters('entraApiClientId')), createObject('name', 'ENTRA_PUBLIC_CLIENT_ID', 'value', parameters('entraPublicClientId')), createObject('name', 'ENTRA_REQUIRED_SCOPE', 'value', parameters('entraRequiredScope')), createObject('name', 'PILOT_AUTH_ENFORCE', 'value', 'true'), createObject('name', 'ALLOW_DEV_PILOT_HEADER', 'value', 'false'), createObject('name', 'ADMIN_PILOT_IDS', 'value', parameters('adminPilotIds')), createObject('name', 'BOOTSTRAP_ADMIN_IDENTITIES', 'value', parameters('bootstrapAdminIdentities')), createObject('name', 'ACA_GPU_BASE_URL', 'value', if(parameters('deployGpuApp'), reference(resourceId('Microsoft.Resources/deployments', 'gpuInference'), '2025-04-01').outputs.baseUrl.value, parameters('aiGpuBaseUrl'))), createObject('name', 'RECORDING_DESTINATION_CONTAINER_URL', 'value', if(not(empty(parameters('recordingDestinationContainerUrl'))), format('{0}recording-destination-container-url/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value)), format('{0}recordings', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.blobEndpoint.value)))), if(not(empty(parameters('aiSharedKey'))), createArray(createObject('name', 'AI_SHARED_KEY', 'value', format('{0}ai-shared-key/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value)))), createArray()), if(parameters('deployAiVision'), createArray(createObject('name', 'FOUNDRY_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.foundryEndpoint.value), createObject('name', 'FOUNDRY_DEPLOYMENT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.gpt4oDeploymentName.value), createObject('name', 'FOUNDRY_API_VERSION', 'value', '2024-10-21'), createObject('name', 'VOICELIVE_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.voiceLiveEndpoint.value), createObject('name', 'VOICELIVE_REGION', 'value', parameters('foundryLocation')), createObject('name', 'VOICELIVE_MODEL', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.realtimeDeploymentName.value), createObject('name', 'VOICELIVE_API_VERSION', 'value', '2026-04-10')), createArray()))]"
+                    "value": "[concat(createArray(createObject('name', 'PUBLIC_API_BASE_URL', 'value', variables('backendUrl')), createObject('name', 'CALLBACK_URI', 'value', format('{0}/filestatus', variables('backendUrl'))), createObject('name', 'WEB_PUBSUB_CONNECTION_STRING', 'value', format('{0}web-pubsub-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'HUB_NAME', 'value', reference(resourceId('Microsoft.Resources/deployments', 'webpubsub'), '2025-04-01').outputs.hubName.value), createObject('name', 'IOTHUB_SERVICE_CONNECTION_STRING', 'value', format('{0}iothub-service-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'IOTHUB_DEVICE_ID', 'value', parameters('primaryDeviceId')), createObject('name', 'COSMOS_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'cosmos'), '2025-04-01').outputs.endpoint.value), createObject('name', 'COSMOS_DATABASE', 'value', reference(resourceId('Microsoft.Resources/deployments', 'cosmos'), '2025-04-01').outputs.databaseName.value), createObject('name', 'COSMOS_AUTH', 'value', 'aad'), createObject('name', 'ENABLE_AZURE_STORAGE', 'value', 'true'), createObject('name', 'AZURE_STORAGE_ACCOUNT_NAME', 'value', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.name.value), createObject('name', 'AZURE_STORAGE_DATALAKE_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.dfsEndpoint.value), createObject('name', 'AZURE_COMMUNICATION_SERVICES_CONNECTION_STRING', 'value', format('{0}acs-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'ACS_RESOURCE_NAME', 'value', variables('names').acs), createObject('name', 'AZURE_MAPS_CLIENT_ID', 'value', reference(resourceId('Microsoft.Resources/deployments', 'maps'), '2025-04-01').outputs.clientId.value), createObject('name', 'AZURE_MAPS_SUBSCRIPTION_KEY', 'value', format('{0}azure-maps-subscription-key/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'ENTRA_API_CLIENT_ID', 'value', parameters('entraApiClientId')), createObject('name', 'ENTRA_PUBLIC_CLIENT_ID', 'value', parameters('entraPublicClientId')), createObject('name', 'ENTRA_REQUIRED_SCOPE', 'value', parameters('entraRequiredScope')), createObject('name', 'PILOT_AUTH_ENFORCE', 'value', 'true'), createObject('name', 'ALLOW_DEV_PILOT_HEADER', 'value', 'false'), createObject('name', 'ADMIN_PILOT_IDS', 'value', parameters('adminPilotIds')), createObject('name', 'BOOTSTRAP_ADMIN_IDENTITIES', 'value', parameters('bootstrapAdminIdentities')), createObject('name', 'ACA_GPU_BASE_URL', 'value', if(parameters('deployGpuApp'), reference(resourceId('Microsoft.Resources/deployments', 'gpuInference'), '2025-04-01').outputs.baseUrl.value, parameters('aiGpuBaseUrl'))), createObject('name', 'RECORDING_DESTINATION_CONTAINER_URL', 'value', if(not(empty(parameters('recordingDestinationContainerUrl'))), format('{0}recording-destination-container-url/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value)), format('{0}recordings', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.blobEndpoint.value)))), if(not(empty(parameters('aiSharedKey'))), createArray(createObject('name', 'AI_SHARED_KEY', 'value', format('{0}ai-shared-key/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value)))), createArray()), if(parameters('deployAiVision'), createArray(createObject('name', 'FOUNDRY_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.foundryEndpoint.value), createObject('name', 'FOUNDRY_DEPLOYMENT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.chatDeploymentName.value), createObject('name', 'FOUNDRY_API_VERSION', 'value', '2024-10-21'), createObject('name', 'VOICELIVE_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.voiceLiveEndpoint.value), createObject('name', 'VOICELIVE_REGION', 'value', parameters('foundryLocation')), createObject('name', 'VOICELIVE_MODEL', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.realtimeDeploymentName.value), createObject('name', 'VOICELIVE_API_VERSION', 'value', '2026-04-10')), createArray()))]"
                   }
                 },
                 "template": {
