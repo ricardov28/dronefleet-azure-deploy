@@ -1,9 +1,9 @@
 # Dronefleet Azure deployment
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fricardov28%2Fdronefleet-azure-deploy%2Fv1.0.0%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fricardov28%2Fdronefleet-azure-deploy%2Fv1.1.0%2Fazuredeploy.json)
 
 The button opens a subscription-scope Azure Portal deployment using the
-versioned `v1.0.0` template. Before using it, run the one-time Entra bootstrap
+versioned `v1.1.0` template. Before using it, run the one-time Entra bootstrap
 described below and enter its two client IDs plus your
 `tenantId:userObjectId` bootstrap administrator in the portal form.
 
@@ -29,7 +29,7 @@ The deployment is preview-first: scripts do not change Azure or Entra unless `-A
 - Azure Communication Services and Azure Maps
 - ACS system identity with write access to the ADLS `recordings` container
 - Post-code Event Grid subscription for recording-file status notifications
-- Microsoft Foundry account/project with `gpt-4o` and `gpt-realtime` model deployments
+- Microsoft Foundry account/project with `gpt-5.1` snapshot analysis and `gpt-realtime` voice deployments
 - Optional quota-gated T4 serverless GPU Container App and target ACR
 
 Service credentials still required by the current Node SDK code are generated during deployment, stored in Key Vault, and injected through App Service Key Vault references. Cosmos and storage use managed identity.

@@ -18,7 +18,10 @@ param uniqueSeed string = ''
 param networkIsolation string = 'privateEndpoint'
 param deployAiVision bool
 param foundryLocation string = 'eastus2'
-param foundryGpt4oModelVersion string = '2024-11-20'
+param foundryChatDeploymentName string = 'vision-chat'
+param foundryChatModelName string = 'gpt-5.1'
+param foundryChatModelVersion string = '2025-11-13'
+param foundryChatVersionUpgradeOption string = 'OnceCurrentVersionExpired'
 param foundryRealtimeModelVersion string = '2025-08-28'
 param foundryModelCapacity int = 10
 param entraApiClientId string = ''
@@ -378,8 +381,11 @@ module foundry 'modules/foundry.bicep' = if (deployAiVision) {
     peSubnetId: network.outputs.peSubnetId
     dnsZoneIds: networkIsolation == 'privateEndpoint' ? network.outputs.dnsZoneIds.cognitiveServices : []
     networkIsolation: networkIsolation
-    gpt4oModelVersion: foundryGpt4oModelVersion
-    gpt4oCapacity: foundryModelCapacity
+    chatDeploymentName: foundryChatDeploymentName
+    chatModelName: foundryChatModelName
+    chatModelVersion: foundryChatModelVersion
+    chatCapacity: foundryModelCapacity
+    chatVersionUpgradeOption: foundryChatVersionUpgradeOption
     realtimeModelVersion: foundryRealtimeModelVersion
     realtimeCapacity: foundryModelCapacity
   }
@@ -537,7 +543,7 @@ var backendAppSettings = concat([
   }
   {
     name: 'FOUNDRY_DEPLOYMENT'
-    value: foundry!.outputs.gpt4oDeploymentName
+    value: foundry!.outputs.chatDeploymentName
   }
   {
     name: 'FOUNDRY_API_VERSION'

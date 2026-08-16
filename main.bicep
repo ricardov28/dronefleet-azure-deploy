@@ -42,11 +42,25 @@ param networkIsolation string = 'privateEndpoint'
 @description('Layer F — AI / vision (OpenAI, vision, Logic App).')
 param deployAiVision bool = true
 
-@description('Microsoft Foundry region. East US 2 is the default because it supports both gpt-4o and gpt-realtime.')
+@description('Microsoft Foundry region. East US 2 is the default because it supports both the snapshot-analysis and real-time voice models.')
 param foundryLocation string = 'eastus2'
 
-@description('Foundry gpt-4o model version.')
-param foundryGpt4oModelVersion string = '2024-11-20'
+@description('Stable deployment name used by the backend for snapshot visual analysis.')
+param foundryChatDeploymentName string = 'vision-chat'
+
+@description('Foundry model used for snapshot visual analysis.')
+param foundryChatModelName string = 'gpt-5.1'
+
+@description('Foundry snapshot-analysis model version.')
+param foundryChatModelVersion string = '2025-11-13'
+
+@allowed([
+  'NoAutoUpgrade'
+  'OnceCurrentVersionExpired'
+  'OnceNewDefaultVersionAvailable'
+])
+@description('Automatic version upgrade policy within the selected snapshot-analysis model family. Cross-family migrations still require a template release.')
+param foundryChatVersionUpgradeOption string = 'OnceCurrentVersionExpired'
 
 @description('Foundry gpt-realtime model version.')
 param foundryRealtimeModelVersion string = '2025-08-28'
@@ -124,7 +138,10 @@ module platform 'platform.bicep' = {
     networkIsolation: networkIsolation
     deployAiVision: deployAiVision
     foundryLocation: foundryLocation
-    foundryGpt4oModelVersion: foundryGpt4oModelVersion
+    foundryChatDeploymentName: foundryChatDeploymentName
+    foundryChatModelName: foundryChatModelName
+    foundryChatModelVersion: foundryChatModelVersion
+    foundryChatVersionUpgradeOption: foundryChatVersionUpgradeOption
     foundryRealtimeModelVersion: foundryRealtimeModelVersion
     foundryModelCapacity: foundryModelCapacity
     entraApiClientId: entraApiClientId

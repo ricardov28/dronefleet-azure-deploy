@@ -10,10 +10,13 @@ param cosmosLocation = 'centralus'
 // serviceEndpoint is the lower-cost development option for application traffic.
 param networkIsolation = 'privateEndpoint'
 
-// Foundry account, project, gpt-4o, and gpt-realtime deployments.
+// Foundry account, project, snapshot-analysis, and real-time voice deployments.
 param deployAiVision = true
 param foundryLocation = 'eastus2'
-param foundryGpt4oModelVersion = '2024-11-20'
+param foundryChatDeploymentName = 'vision-chat'
+param foundryChatModelName = 'gpt-5.1'
+param foundryChatModelVersion = '2025-11-13'
+param foundryChatVersionUpgradeOption = 'OnceCurrentVersionExpired'
 param foundryRealtimeModelVersion = '2025-08-28'
 param foundryModelCapacity = 10
 
