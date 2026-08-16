@@ -133,7 +133,7 @@ IoT device identities/certificates, pilot-to-drone assignments, ACS room records
 
 ### Foundry and GPU inference
 
-The main deployment creates a Microsoft Foundry account/project in East US 2 with usage-based `gpt-4o` and `gpt-realtime` deployments. The backend invokes snapshot analysis with managed identity. Voice Live is a direct browser WebSocket, so the browser receives a short-lived Entra token from Express; Foundry keys remain disabled.
+The main deployment creates a Microsoft Foundry account/project in East US 2 with usage-based `gpt-5.1` snapshot-analysis and `gpt-realtime` voice deployments. The backend invokes the stable `vision-chat` deployment with managed identity. Voice Live is a direct browser WebSocket, so the browser receives a short-lived Entra token from Express; Foundry keys remain disabled. Azure may upgrade versions within the selected model family according to `foundryChatVersionUpgradeOption`; migration to a different family remains an explicit, tested template release.
 
 The optional detector uses an 8-vCPU/56-GiB `Consumption-GPU-NC8as-T4` Container Apps profile in South Central US, the deployment-created ACR, Key Vault-backed `AI_SHARED_KEY` and Web PubSub connection string, managed-identity image pull, and scale-to-zero with `maxReplicas = 1`. Bicep also sets the target hub and `detections` per-device group prefix. Deployment is intentionally staged so `ai-detection:t4-v8` is imported before the app references it.
 

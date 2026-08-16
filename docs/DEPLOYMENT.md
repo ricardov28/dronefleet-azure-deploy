@@ -90,7 +90,7 @@ Review `main.bicepparam`:
 - `cosmosLocation`: optional Cosmos DB region. This test uses `centralus` because the subscription cannot currently reserve South Central Cosmos capacity. Its private endpoint remains in the South Central VNet and is resolved from both peered VNets.
 - `uniqueSeed`: change only for globally unique name conflicts.
 - `networkIsolation`: `privateEndpoint` for production application traffic or `serviceEndpoint` for lower-cost development. IoT Hub routes always use firewall-restricted public destination endpoints with trusted-service exceptions.
-- `deployAiVision`: creates a Microsoft Foundry account/project plus `gpt-4o` and `gpt-realtime` deployments in `foundryLocation` (East US 2 by default).
+- `deployAiVision`: creates a Microsoft Foundry account/project plus `gpt-5.1` snapshot-analysis and `gpt-realtime` voice deployments in `foundryLocation` (East US 2 by default). The stable `vision-chat` deployment name lets future releases change model families without changing backend configuration.
 - `deployGpuInfrastructure`: creates the target ACR and T4 Container Apps environment after quota is approved.
 - `deployGpuApp`: creates the detector app after its image is present in the target ACR. It requires `deployGpuInfrastructure` and `DRONEFLEET_AI_SHARED_KEY`.
 - `gpuLocation`: defaults to South Central US. Microsoft Learn lists T4 support there, but the subscription must expose Managed Environment Consumption T4 GPU quota.
