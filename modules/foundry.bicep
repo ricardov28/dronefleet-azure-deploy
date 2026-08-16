@@ -8,10 +8,17 @@ param identityPrincipalId string
 param peSubnetId string
 param dnsZoneIds array = []
 param networkIsolation string = 'privateEndpoint'
-param gpt4oDeploymentName string = 'gpt-4o'
-param gpt4oModelVersion string = '2024-11-20'
-param gpt4oSkuName string = 'GlobalStandard'
-param gpt4oCapacity int = 10
+param chatDeploymentName string = 'vision-chat'
+param chatModelName string = 'gpt-5.1'
+param chatModelVersion string = '2025-11-13'
+param chatSkuName string = 'GlobalStandard'
+param chatCapacity int = 10
+@allowed([
+  'NoAutoUpgrade'
+  'OnceCurrentVersionExpired'
+  'OnceNewDefaultVersionAvailable'
+])
+param chatVersionUpgradeOption string = 'OnceCurrentVersionExpired'
 param realtimeDeploymentName string = 'gpt-realtime'
 param realtimeModelVersion string = '2025-08-28'
 param realtimeSkuName string = 'GlobalStandard'
@@ -64,20 +71,20 @@ resource project 'Microsoft.CognitiveServices/accounts/projects@2026-05-01' = {
   }
 }
 
-resource gpt4o 'Microsoft.CognitiveServices/accounts/deployments@2026-05-01' = {
+resource chat 'Microsoft.CognitiveServices/accounts/deployments@2026-05-01' = {
   parent: account
-  name: gpt4oDeploymentName
+  name: chatDeploymentName
   sku: {
-    name: gpt4oSkuName
-    capacity: gpt4oCapacity
+    name: chatSkuName
+    capacity: chatCapacity
   }
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-4o'
-      version: gpt4oModelVersion
+      name: chatModelName
+      version: chatModelVersion
     }
-    versionUpgradeOption: 'NoAutoUpgrade'
+    versionUpgradeOption: chatVersionUpgradeOption
   }
   dependsOn: [
     project
@@ -100,7 +107,7 @@ resource realtime 'Microsoft.CognitiveServices/accounts/deployments@2026-05-01' 
     versionUpgradeOption: 'NoAutoUpgrade'
   }
   dependsOn: [
-    gpt4o
+    chat
   ]
 }
 
@@ -133,6 +140,9 @@ module privateEndpoint 'privateEndpoint.bicep' = if (usePrivateEndpoints) {
     ]
     dnsZoneIds: dnsZoneIds
   }
+  dependsOn: [
+    realtime
+  ]
 }
 
 output id string = account.id
@@ -140,5 +150,5 @@ output name string = account.name
 output projectId string = project.id
 output foundryEndpoint string = 'https://${account.name}.services.ai.azure.com'
 output voiceLiveEndpoint string = 'https://${account.name}.cognitiveservices.azure.com'
-output gpt4oDeploymentName string = gpt4o.name
+output chatDeploymentName string = chat.name
 output realtimeDeploymentName string = realtime.name
