@@ -1,0 +1,25 @@
+# Bicep build output
+/main.json
+/platform.json
+/postdeploy.json
+/modules/*.json
+
+# The compiled, self-contained portal template is intentionally versioned.
+!/azuredeploy.json
+
+# Node (vendored app code)
+node_modules/
+dist/
+*.log
+*.zip
+.deployment/
+.azure/
+
+# Local secrets / context
+.env
+*.azctx.json
+azctx.json
+
+# OS
+.DS_Store
+Thumbs.db
