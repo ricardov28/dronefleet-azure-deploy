@@ -1,0 +1,60 @@
+name: Deploy forwarder function code
+
+# Deploys the IoT Hub -> Web PubSub forwarder code to the Flex Consumption function
+# created by the infra deployment. Vendor the function source under apps/forwarder/
+# (or change working-directory to point at your existing function repo).
+#
+# The function app name is discovered from the infra deployment outputs, so you don't
+# hardcode it. Requires the same OIDC secrets as deploy-infra.yml.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  RESOURCE_GROUP: ${{ vars.DRONEFLEET_RESOURCE_GROUP || 'rg-dronefleet' }}
+  NAME_PREFIX: ${{ vars.DRONEFLEET_NAME_PREFIX || 'dronefleet' }}
+  NODE_VERSION: '22'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build
+        working-directory: apps/forwarder
+        run: |
+          npm ci
+          npm test
+          npm run build --if-present
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve function app name
+        id: names
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            APP=$(az functionapp list -g "$RESOURCE_GROUP" \
+              --query "[?starts_with(name,'${NAME_PREFIX}-fwd-')].name | [0]" -o tsv)
+            test -n "$APP" || { echo "No forwarder Function found in $RESOURCE_GROUP."; exit 1; }
+            echo "app=$APP" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy function code
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ steps.names.outputs.app }}
+          package: apps/forwarder

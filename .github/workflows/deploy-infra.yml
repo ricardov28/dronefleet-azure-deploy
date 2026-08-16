@@ -1,0 +1,136 @@
+name: Validate and deploy infrastructure
+
+# Deploys the whole dronefleet platform (subscription-scope) via OIDC — no secrets/passwords.
+# Prereqs (one-time): an Entra app (or user-assigned MI) with a GitHub federated credential and
+# Owner (or Contributor + User Access Administrator) on the subscription, plus repo secrets:
+#   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
+# See README.md > "CI/CD setup".
+
+on:
+  pull_request:
+    paths:
+      - '**.bicep'
+      - '**.bicepparam'
+      - 'azuredeploy.json'
+      - 'apps/forwarder/**'
+      - '.github/workflows/deploy-infra.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**.bicep'
+      - '**.bicepparam'
+      - 'azuredeploy.json'
+      - 'apps/forwarder/**'
+      - '.github/workflows/deploy-infra.yml'
+  workflow_dispatch:
+    inputs:
+      location:
+        description: Azure region
+        default: westus
+        type: string
+      apply:
+        description: Apply the deployment after what-if
+        default: false
+        type: boolean
+      compute_location:
+        description: Backend and Function region; empty uses primary region
+        default: centralus
+        type: string
+      cosmos_location:
+        description: Cosmos DB region; empty uses primary region
+        default: centralus
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile Bicep
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az bicep build --file main.bicep --outfile /tmp/azuredeploy.json
+            az bicep build-params --file main.bicepparam --stdout >/dev/null
+            az bicep build --file postdeploy.bicep --stdout >/dev/null
+            cmp /tmp/azuredeploy.json azuredeploy.json || {
+              echo 'azuredeploy.json is stale. Rebuild it from main.bicep before publishing.'
+              exit 1
+            }
+
+      - name: Test telemetry forwarder
+        working-directory: apps/forwarder
+        run: |
+          npm ci
+          npm test
+
+  preview-and-deploy:
+    if: github.event_name == 'workflow_dispatch'
+    needs: validate
+    runs-on: ubuntu-latest
+    env:
+      LOCATION: ${{ inputs.location || 'westus' }}
+      COMPUTE_LOCATION: ${{ inputs.compute_location || '' }}
+      COSMOS_LOCATION: ${{ inputs.cosmos_location || '' }}
+      ENTRA_API_CLIENT_ID: ${{ vars.ENTRA_API_CLIENT_ID }}
+      ENTRA_PUBLIC_CLIENT_ID: ${{ vars.ENTRA_PUBLIC_CLIENT_ID }}
+      ADMIN_PILOT_IDS: ${{ vars.ADMIN_PILOT_IDS }}
+      BOOTSTRAP_ADMIN_IDENTITIES: ${{ vars.BOOTSTRAP_ADMIN_IDENTITIES }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Validate tenant configuration
+        shell: bash
+        run: |
+          test -n "$ENTRA_API_CLIENT_ID" || { echo 'Repository variable ENTRA_API_CLIENT_ID is required.'; exit 1; }
+          test -n "$ENTRA_PUBLIC_CLIENT_ID" || { echo 'Repository variable ENTRA_PUBLIC_CLIENT_ID is required.'; exit 1; }
+          test -n "$BOOTSTRAP_ADMIN_IDENTITIES" || { echo 'Repository variable BOOTSTRAP_ADMIN_IDENTITIES is required.'; exit 1; }
+          [[ "$BOOTSTRAP_ADMIN_IDENTITIES" =~ ^[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}([[:space:]]*,[[:space:]]*[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36})*$ ]] || { echo 'BOOTSTRAP_ADMIN_IDENTITIES must contain tenantId:userObjectId values.'; exit 1; }
+
+      - name: Validate (what-if)
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az deployment sub what-if \
+              --location "$LOCATION" \
+              --template-file main.bicep \
+              --parameters main.bicepparam \
+              --parameters \
+                location="$LOCATION" \
+                computeLocation="$COMPUTE_LOCATION" \
+                cosmosLocation="$COSMOS_LOCATION" \
+                entraApiClientId="$ENTRA_API_CLIENT_ID" \
+                entraPublicClientId="$ENTRA_PUBLIC_CLIENT_ID" \
+                adminPilotIds="$ADMIN_PILOT_IDS" \
+                bootstrapAdminIdentities="$BOOTSTRAP_ADMIN_IDENTITIES"
+
+      - name: Deploy
+        if: inputs.apply
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az deployment sub create \
+              --location "$LOCATION" \
+              --name "dronefleet-$(date +%Y%m%d%H%M%S)" \
+              --template-file main.bicep \
+              --parameters main.bicepparam \
+              --parameters \
+                location="$LOCATION" \
+                computeLocation="$COMPUTE_LOCATION" \
+                cosmosLocation="$COSMOS_LOCATION" \
+                entraApiClientId="$ENTRA_API_CLIENT_ID" \
+                entraPublicClientId="$ENTRA_PUBLIC_CLIENT_ID" \
+                adminPilotIds="$ADMIN_PILOT_IDS" \
+                bootstrapAdminIdentities="$BOOTSTRAP_ADMIN_IDENTITIES"
