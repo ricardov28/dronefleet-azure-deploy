@@ -1,11 +1,11 @@
 # Dronefleet Azure deployment
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fricardov28%2Fdronefleet-azure-deploy%2Fv1.1.0%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fricardov28%2Fdronefleet-azure-deploy%2Fv1.2.0%2Fazuredeploy.json)
 
 The button opens a subscription-scope Azure Portal deployment using the
-versioned `v1.1.0` template. Before using it, run the one-time Entra bootstrap
-described below and enter its two client IDs plus your
-`tenantId:userObjectId` bootstrap administrator in the portal form.
+versioned `v1.2.0` template. Before using it, run the one-time Entra bootstrap
+described below and enter its two client IDs plus at least one administrator as
+`tenantId:userObjectId` in the portal form.
 
 This repository recreates the core Dronefleet cloud backend in a new Azure subscription and tenant. It contains subscription-scope Bicep, the IoT Hub telemetry forwarder, Entra bootstrap automation, deployment scripts, and operational documentation.
 
@@ -39,7 +39,7 @@ Service credentials still required by the current Node SDK code are generated du
 - Entra application registrations are created by [`scripts/bootstrap-entra.ps1`](scripts/bootstrap-entra.ps1), not ARM.
 - The combined backend source currently lives in the adjacent application repository and is packaged by [`scripts/deploy-code.ps1`](scripts/deploy-code.ps1).
 - Android APKs must be rebuilt with the new backend URL and Entra IDs.
-- Drone IoT identities, pilot assignments, and bootstrap administrators are environment data, not reusable infrastructure.
+- Drone IoT identities, pilot assignments, and administrator identities are environment data, not reusable infrastructure.
 - The GPU detector is Bicep-managed but deployed in two stages: create ACR/environment, build or import the versioned image with [`scripts/import-gpu-image.ps1`](scripts/import-gpu-image.ps1), then enable the app. South Central US T4 quota is required.
 
 ## Start here
@@ -60,12 +60,12 @@ Service credentials still required by the current Node SDK code are generated du
   -TenantId '<tenant-id>' `
   -EntraApiClientId '<api-client-id>' `
   -EntraPublicClientId '<public-client-id>' `
-  -BootstrapAdminIdentities '<tenant-id>:<user-object-id>'
+  -AdminIdentities '<tenant-id>:<user-object-id>'
 ```
 
 The script runs Bicep validation and `az deployment sub what-if`; without `-Apply`, it stops there.
 
-Every environment must pass at least one bootstrap administrator as
+Every environment must pass at least one administrator as
 `<tenant-id>:<user-object-id>`. The deployment creates no pilot assignment
 documents. After signing in, that administrator assigns pilots to drones through
 the admin UI/API as the fleet is onboarded.
@@ -77,7 +77,7 @@ the admin UI/API as the fleet is onboarded.
   `-Apply`; it creates or reuses the two Entra registrations and prints their
   client IDs.
 3. Select **Deploy to Azure** above, choose the subscription and regions, and
-  enter the client IDs and bootstrap administrator identity.
+  enter the client IDs and at least one administrator identity.
 4. Leave `deployGpuInfrastructure` and `deployGpuApp` off unless the selected
   region has approved **Managed Environment Consumption T4 GPUs** quota and
   the detector image has been published to the deployment-created ACR.

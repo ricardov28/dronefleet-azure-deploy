@@ -8,10 +8,9 @@ param(
     [string]$ComputeLocation = '',
     [string]$CosmosLocation = '',
     [string]$FoundryLocation = 'eastus2',
-    [string]$AdminPilotIds = '',
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
-    [string]$BootstrapAdminIdentities,
+    [string]$AdminIdentities,
     [string]$PrimaryDeviceId = 'drone01RPI',
     [string]$AiGpuBaseUrl = '',
     [switch]$DeployGpuInfrastructure,
@@ -58,8 +57,8 @@ $name = "dronefleet-$(Get-Date -Format 'yyyyMMddHHmmss')"
 if (-not (Get-Command az -ErrorAction SilentlyContinue)) { throw 'Azure CLI is required.' }
 if ($DeployCode -and -not $Apply) { throw '-DeployCode requires -Apply.' }
 if ($DeployCode -and -not $BackendSourcePath) { throw '-DeployCode requires -BackendSourcePath.' }
-if ($BootstrapAdminIdentities -notmatch '^[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}(\s*,\s*[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36})*$') {
-    throw '-BootstrapAdminIdentities must contain one or more comma-separated tenantId:userObjectId values.'
+if ($AdminIdentities -notmatch '^[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}(\s*,\s*[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36})*$') {
+    throw '-AdminIdentities must contain one or more comma-separated tenantId:userObjectId values.'
 }
 if ($DeployGpuApp -and -not $DeployGpuInfrastructure) {
     throw '-DeployGpuApp requires -DeployGpuInfrastructure.'
@@ -127,8 +126,7 @@ $overrides = @(
     "foundryLocation=$FoundryLocation",
     "entraApiClientId=$EntraApiClientId",
     "entraPublicClientId=$EntraPublicClientId",
-    "adminPilotIds=$AdminPilotIds",
-    "bootstrapAdminIdentities=$BootstrapAdminIdentities",
+    "adminIdentities=$AdminIdentities",
     "primaryDeviceId=$PrimaryDeviceId",
     "aiGpuBaseUrl=$AiGpuBaseUrl",
     "deployGpuInfrastructure=$($DeployGpuInfrastructure.IsPresent.ToString().ToLowerInvariant())",

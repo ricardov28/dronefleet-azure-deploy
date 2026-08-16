@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.46.1.21595",
-      "templateHash": "15912458709911539376"
+      "templateHash": "9497494531492096812"
     }
   },
   "parameters": {
@@ -140,18 +140,11 @@
         "description": "Delegated scope name required in pilot access tokens."
       }
     },
-    "adminPilotIds": {
+    "adminIdentities": {
       "type": "string",
-      "defaultValue": "",
+      "minLength": 73,
       "metadata": {
-        "description": "Comma-separated immutable pilot subject IDs with fleet-admin access."
-      }
-    },
-    "bootstrapAdminIdentities": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Comma-separated tenantId:userObjectId bootstrap administrators. Required by deployment tooling so a new tenant cannot be locked out."
+        "description": "Required. One or more comma-separated tenantId:userObjectId values for Dronefleet administrators. Pilots are added and assigned to drones later in the website. Example: 00000000-0000-0000-0000-000000000000:11111111-1111-1111-1111-111111111111"
       }
     },
     "primaryDeviceId": {
@@ -301,11 +294,8 @@
           "entraRequiredScope": {
             "value": "[parameters('entraRequiredScope')]"
           },
-          "adminPilotIds": {
-            "value": "[parameters('adminPilotIds')]"
-          },
-          "bootstrapAdminIdentities": {
-            "value": "[parameters('bootstrapAdminIdentities')]"
+          "adminIdentities": {
+            "value": "[parameters('adminIdentities')]"
           },
           "primaryDeviceId": {
             "value": "[parameters('primaryDeviceId')]"
@@ -342,7 +332,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.46.1.21595",
-              "templateHash": "5687817256359094818"
+              "templateHash": "15451052431766408552"
             }
           },
           "parameters": {
@@ -414,15 +404,10 @@
               "type": "string",
               "defaultValue": "Drone.Provision"
             },
-            "adminPilotIds": {
+            "adminIdentities": {
               "type": "string",
-              "defaultValue": ""
-            },
-            "bootstrapAdminIdentities": {
-              "type": "string",
-              "defaultValue": "",
               "metadata": {
-                "description": "Comma-separated tenantId:userObjectId bootstrap administrators. Does not create pilot assignment documents."
+                "description": "One or more comma-separated tenantId:userObjectId Dronefleet administrators. Does not create pilot assignment documents."
               }
             },
             "primaryDeviceId": {
@@ -4678,7 +4663,7 @@
                     "value": "NODE|22-lts"
                   },
                   "extraAppSettings": {
-                    "value": "[concat(createArray(createObject('name', 'PUBLIC_API_BASE_URL', 'value', variables('backendUrl')), createObject('name', 'CALLBACK_URI', 'value', format('{0}/filestatus', variables('backendUrl'))), createObject('name', 'WEB_PUBSUB_CONNECTION_STRING', 'value', format('{0}web-pubsub-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'HUB_NAME', 'value', reference(resourceId('Microsoft.Resources/deployments', 'webpubsub'), '2025-04-01').outputs.hubName.value), createObject('name', 'IOTHUB_SERVICE_CONNECTION_STRING', 'value', format('{0}iothub-service-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'IOTHUB_DEVICE_ID', 'value', parameters('primaryDeviceId')), createObject('name', 'COSMOS_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'cosmos'), '2025-04-01').outputs.endpoint.value), createObject('name', 'COSMOS_DATABASE', 'value', reference(resourceId('Microsoft.Resources/deployments', 'cosmos'), '2025-04-01').outputs.databaseName.value), createObject('name', 'COSMOS_AUTH', 'value', 'aad'), createObject('name', 'ENABLE_AZURE_STORAGE', 'value', 'true'), createObject('name', 'AZURE_STORAGE_ACCOUNT_NAME', 'value', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.name.value), createObject('name', 'AZURE_STORAGE_DATALAKE_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.dfsEndpoint.value), createObject('name', 'AZURE_COMMUNICATION_SERVICES_CONNECTION_STRING', 'value', format('{0}acs-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'ACS_RESOURCE_NAME', 'value', variables('names').acs), createObject('name', 'AZURE_MAPS_CLIENT_ID', 'value', reference(resourceId('Microsoft.Resources/deployments', 'maps'), '2025-04-01').outputs.clientId.value), createObject('name', 'AZURE_MAPS_SUBSCRIPTION_KEY', 'value', format('{0}azure-maps-subscription-key/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'ENTRA_API_CLIENT_ID', 'value', parameters('entraApiClientId')), createObject('name', 'ENTRA_PUBLIC_CLIENT_ID', 'value', parameters('entraPublicClientId')), createObject('name', 'ENTRA_REQUIRED_SCOPE', 'value', parameters('entraRequiredScope')), createObject('name', 'PILOT_AUTH_ENFORCE', 'value', 'true'), createObject('name', 'ALLOW_DEV_PILOT_HEADER', 'value', 'false'), createObject('name', 'ADMIN_PILOT_IDS', 'value', parameters('adminPilotIds')), createObject('name', 'BOOTSTRAP_ADMIN_IDENTITIES', 'value', parameters('bootstrapAdminIdentities')), createObject('name', 'ACA_GPU_BASE_URL', 'value', if(parameters('deployGpuApp'), reference(resourceId('Microsoft.Resources/deployments', 'gpuInference'), '2025-04-01').outputs.baseUrl.value, parameters('aiGpuBaseUrl'))), createObject('name', 'RECORDING_DESTINATION_CONTAINER_URL', 'value', if(not(empty(parameters('recordingDestinationContainerUrl'))), format('{0}recording-destination-container-url/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value)), format('{0}recordings', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.blobEndpoint.value)))), if(not(empty(parameters('aiSharedKey'))), createArray(createObject('name', 'AI_SHARED_KEY', 'value', format('{0}ai-shared-key/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value)))), createArray()), if(parameters('deployAiVision'), createArray(createObject('name', 'FOUNDRY_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.foundryEndpoint.value), createObject('name', 'FOUNDRY_DEPLOYMENT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.chatDeploymentName.value), createObject('name', 'FOUNDRY_API_VERSION', 'value', '2024-10-21'), createObject('name', 'VOICELIVE_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.voiceLiveEndpoint.value), createObject('name', 'VOICELIVE_REGION', 'value', parameters('foundryLocation')), createObject('name', 'VOICELIVE_MODEL', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.realtimeDeploymentName.value), createObject('name', 'VOICELIVE_API_VERSION', 'value', '2026-04-10')), createArray()))]"
+                    "value": "[concat(createArray(createObject('name', 'PUBLIC_API_BASE_URL', 'value', variables('backendUrl')), createObject('name', 'CALLBACK_URI', 'value', format('{0}/filestatus', variables('backendUrl'))), createObject('name', 'WEB_PUBSUB_CONNECTION_STRING', 'value', format('{0}web-pubsub-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'HUB_NAME', 'value', reference(resourceId('Microsoft.Resources/deployments', 'webpubsub'), '2025-04-01').outputs.hubName.value), createObject('name', 'IOTHUB_SERVICE_CONNECTION_STRING', 'value', format('{0}iothub-service-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'IOTHUB_DEVICE_ID', 'value', parameters('primaryDeviceId')), createObject('name', 'COSMOS_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'cosmos'), '2025-04-01').outputs.endpoint.value), createObject('name', 'COSMOS_DATABASE', 'value', reference(resourceId('Microsoft.Resources/deployments', 'cosmos'), '2025-04-01').outputs.databaseName.value), createObject('name', 'COSMOS_AUTH', 'value', 'aad'), createObject('name', 'ENABLE_AZURE_STORAGE', 'value', 'true'), createObject('name', 'AZURE_STORAGE_ACCOUNT_NAME', 'value', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.name.value), createObject('name', 'AZURE_STORAGE_DATALAKE_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.dfsEndpoint.value), createObject('name', 'AZURE_COMMUNICATION_SERVICES_CONNECTION_STRING', 'value', format('{0}acs-connection-string/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'ACS_RESOURCE_NAME', 'value', variables('names').acs), createObject('name', 'AZURE_MAPS_CLIENT_ID', 'value', reference(resourceId('Microsoft.Resources/deployments', 'maps'), '2025-04-01').outputs.clientId.value), createObject('name', 'AZURE_MAPS_SUBSCRIPTION_KEY', 'value', format('{0}azure-maps-subscription-key/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value))), createObject('name', 'ENTRA_API_CLIENT_ID', 'value', parameters('entraApiClientId')), createObject('name', 'ENTRA_PUBLIC_CLIENT_ID', 'value', parameters('entraPublicClientId')), createObject('name', 'ENTRA_REQUIRED_SCOPE', 'value', parameters('entraRequiredScope')), createObject('name', 'PILOT_AUTH_ENFORCE', 'value', 'true'), createObject('name', 'ALLOW_DEV_PILOT_HEADER', 'value', 'false'), createObject('name', 'BOOTSTRAP_ADMIN_IDENTITIES', 'value', parameters('adminIdentities')), createObject('name', 'ACA_GPU_BASE_URL', 'value', if(parameters('deployGpuApp'), reference(resourceId('Microsoft.Resources/deployments', 'gpuInference'), '2025-04-01').outputs.baseUrl.value, parameters('aiGpuBaseUrl'))), createObject('name', 'RECORDING_DESTINATION_CONTAINER_URL', 'value', if(not(empty(parameters('recordingDestinationContainerUrl'))), format('{0}recording-destination-container-url/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value)), format('{0}recordings', reference(resourceId('Microsoft.Resources/deployments', 'adls'), '2025-04-01').outputs.blobEndpoint.value)))), if(not(empty(parameters('aiSharedKey'))), createArray(createObject('name', 'AI_SHARED_KEY', 'value', format('{0}ai-shared-key/)', format('@Microsoft.KeyVault(SecretUri={0}secrets/', reference(resourceId('Microsoft.Resources/deployments', 'keyVault'), '2025-04-01').outputs.uri.value)))), createArray()), if(parameters('deployAiVision'), createArray(createObject('name', 'FOUNDRY_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.foundryEndpoint.value), createObject('name', 'FOUNDRY_DEPLOYMENT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.chatDeploymentName.value), createObject('name', 'FOUNDRY_API_VERSION', 'value', '2024-10-21'), createObject('name', 'VOICELIVE_ENDPOINT', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.voiceLiveEndpoint.value), createObject('name', 'VOICELIVE_REGION', 'value', parameters('foundryLocation')), createObject('name', 'VOICELIVE_MODEL', 'value', reference(resourceId('Microsoft.Resources/deployments', 'foundry'), '2025-04-01').outputs.realtimeDeploymentName.value), createObject('name', 'VOICELIVE_API_VERSION', 'value', '2026-04-10')), createArray()))]"
                   }
                 },
                 "template": {

@@ -26,8 +26,9 @@ param foundryModelCapacity = 10
 param entraApiClientId = ''
 param entraPublicClientId = ''
 param entraRequiredScope = 'Drone.Provision'
-param adminPilotIds = ''
-param bootstrapAdminIdentities = ''
+// Required placeholder for local compilation. Every real deployment must override
+// this with one or more tenantId:userObjectId administrator identities.
+param adminIdentities = '00000000-0000-0000-0000-000000000000:11111111-1111-1111-1111-111111111111'
 param primaryDeviceId = 'drone01RPI'
 param aiGpuBaseUrl = ''
 

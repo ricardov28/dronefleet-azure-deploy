@@ -84,8 +84,7 @@ jobs:
       COSMOS_LOCATION: ${{ inputs.cosmos_location || '' }}
       ENTRA_API_CLIENT_ID: ${{ vars.ENTRA_API_CLIENT_ID }}
       ENTRA_PUBLIC_CLIENT_ID: ${{ vars.ENTRA_PUBLIC_CLIENT_ID }}
-      ADMIN_PILOT_IDS: ${{ vars.ADMIN_PILOT_IDS }}
-      BOOTSTRAP_ADMIN_IDENTITIES: ${{ vars.BOOTSTRAP_ADMIN_IDENTITIES }}
+      ADMIN_IDENTITIES: ${{ vars.ADMIN_IDENTITIES }}
     steps:
       - uses: actions/checkout@v4
 
@@ -101,8 +100,8 @@ jobs:
         run: |
           test -n "$ENTRA_API_CLIENT_ID" || { echo 'Repository variable ENTRA_API_CLIENT_ID is required.'; exit 1; }
           test -n "$ENTRA_PUBLIC_CLIENT_ID" || { echo 'Repository variable ENTRA_PUBLIC_CLIENT_ID is required.'; exit 1; }
-          test -n "$BOOTSTRAP_ADMIN_IDENTITIES" || { echo 'Repository variable BOOTSTRAP_ADMIN_IDENTITIES is required.'; exit 1; }
-          [[ "$BOOTSTRAP_ADMIN_IDENTITIES" =~ ^[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}([[:space:]]*,[[:space:]]*[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36})*$ ]] || { echo 'BOOTSTRAP_ADMIN_IDENTITIES must contain tenantId:userObjectId values.'; exit 1; }
+          test -n "$ADMIN_IDENTITIES" || { echo 'Repository variable ADMIN_IDENTITIES is required.'; exit 1; }
+          [[ "$ADMIN_IDENTITIES" =~ ^[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36}([[:space:]]*,[[:space:]]*[0-9a-fA-F-]{36}:[0-9a-fA-F-]{36})*$ ]] || { echo 'ADMIN_IDENTITIES must contain tenantId:userObjectId values.'; exit 1; }
 
       - name: Validate (what-if)
         uses: azure/cli@v2
@@ -118,8 +117,7 @@ jobs:
                 cosmosLocation="$COSMOS_LOCATION" \
                 entraApiClientId="$ENTRA_API_CLIENT_ID" \
                 entraPublicClientId="$ENTRA_PUBLIC_CLIENT_ID" \
-                adminPilotIds="$ADMIN_PILOT_IDS" \
-                bootstrapAdminIdentities="$BOOTSTRAP_ADMIN_IDENTITIES"
+                adminIdentities="$ADMIN_IDENTITIES"
 
       - name: Deploy
         if: inputs.apply
@@ -137,5 +135,4 @@ jobs:
                 cosmosLocation="$COSMOS_LOCATION" \
                 entraApiClientId="$ENTRA_API_CLIENT_ID" \
                 entraPublicClientId="$ENTRA_PUBLIC_CLIENT_ID" \
-                adminPilotIds="$ADMIN_PILOT_IDS" \
-                bootstrapAdminIdentities="$BOOTSTRAP_ADMIN_IDENTITIES"
+                adminIdentities="$ADMIN_IDENTITIES"

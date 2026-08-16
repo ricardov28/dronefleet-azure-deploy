@@ -78,11 +78,9 @@ param entraPublicClientId string = ''
 @description('Delegated scope name required in pilot access tokens.')
 param entraRequiredScope string = 'Drone.Provision'
 
-@description('Comma-separated immutable pilot subject IDs with fleet-admin access.')
-param adminPilotIds string = ''
-
-@description('Comma-separated tenantId:userObjectId bootstrap administrators. Required by deployment tooling so a new tenant cannot be locked out.')
-param bootstrapAdminIdentities string = ''
+@minLength(73)
+@description('Required. One or more comma-separated tenantId:userObjectId values for Dronefleet administrators. Pilots are added and assigned to drones later in the website. Example: 00000000-0000-0000-0000-000000000000:11111111-1111-1111-1111-111111111111')
+param adminIdentities string
 
 @description('Primary drone used by legacy single-device endpoints.')
 param primaryDeviceId string = 'drone01RPI'
@@ -147,8 +145,7 @@ module platform 'platform.bicep' = {
     entraApiClientId: entraApiClientId
     entraPublicClientId: entraPublicClientId
     entraRequiredScope: entraRequiredScope
-    adminPilotIds: adminPilotIds
-    bootstrapAdminIdentities: bootstrapAdminIdentities
+    adminIdentities: adminIdentities
     primaryDeviceId: primaryDeviceId
     aiGpuBaseUrl: aiGpuBaseUrl
     deployGpuInfrastructure: deployGpuInfrastructure

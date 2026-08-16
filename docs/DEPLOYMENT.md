@@ -74,10 +74,10 @@ tenant. For the currently signed-in deployment operator:
 
 ```powershell
 $adminObjectId = az ad signed-in-user show --query id -o tsv
-$bootstrapAdmin = '<tenant-id>:' + $adminObjectId
+$adminIdentities = '<tenant-id>:' + $adminObjectId
 ```
 
-Use the object ID, not an email address. At least one bootstrap administrator is
+Use the object ID, not an email address. At least one administrator is
 required by the deployment script.
 
 ## 3. Select parameters
@@ -149,7 +149,7 @@ $deployment = @{
   FoundryLocation = 'eastus2'
   EntraApiClientId = '<api-client-id>'
   EntraPublicClientId = '<public-client-id>'
-  BootstrapAdminIdentities = $bootstrapAdmin
+  AdminIdentities = $adminIdentities
   PrimaryDeviceId = 'drone01RPI'
 }
 
@@ -158,9 +158,10 @@ $deployment = @{
 
 Review the complete subscription-level what-if. Pay particular attention to deletions, SKU changes, role assignments, public-network settings, and global name replacements.
 
-`AdminPilotIds` remains available only as an optional backward-compatible or
-break-glass list of exact pilot IDs. A normal new-tenant deployment needs only
-`BootstrapAdminIdentities`.
+No pilots are requested during infrastructure deployment. At least one
+`AdminIdentities` value is mandatory. After deployment, an administrator signs
+in to the website and assigns Entra users to drones as pilots. To configure more
+than one administrator, provide comma-separated `tenantId:userObjectId` values.
 
 ## 6. Deploy infrastructure and code
 
@@ -239,13 +240,13 @@ Keep the existing package names and signing key. The Entra Android redirect URIs
 
 Infrastructure deployment intentionally does not clone tenant data.
 
-It also creates no `pilotAssignments` documents. The bootstrap administrator is
+It also creates no `pilotAssignments` documents. Each configured administrator is
 authorized from the deployment setting and has fleet-wide admin access without a
 drone assignment.
 
 1. Create or enroll each IoT Hub device identity.
 2. Install device certificates/credentials on the matching drone agent.
-3. Sign in as the bootstrap administrator.
+3. Sign in as a configured administrator.
 4. Create pilot-to-drone assignments in the admin UI/API.
 5. Create installation enrollment bundles for Android drone phones as needed.
 6. Verify every device is disarmed before testing control.
@@ -319,8 +320,7 @@ Configure repository variables after running the Entra bootstrap:
 ```text
 ENTRA_API_CLIENT_ID
 ENTRA_PUBLIC_CLIENT_ID
-ADMIN_PILOT_IDS                  optional
-BOOTSTRAP_ADMIN_IDENTITIES       optional
+ADMIN_IDENTITIES                 required; tenantId:userObjectId values
 DRONEFLEET_RESOURCE_GROUP        optional; defaults to rg-dronefleet
 DRONEFLEET_NAME_PREFIX           optional; defaults to dronefleet
 ```

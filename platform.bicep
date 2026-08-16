@@ -27,9 +27,8 @@ param foundryModelCapacity int = 10
 param entraApiClientId string = ''
 param entraPublicClientId string = ''
 param entraRequiredScope string = 'Drone.Provision'
-param adminPilotIds string = ''
-@description('Comma-separated tenantId:userObjectId bootstrap administrators. Does not create pilot assignment documents.')
-param bootstrapAdminIdentities string = ''
+@description('One or more comma-separated tenantId:userObjectId Dronefleet administrators. Does not create pilot assignment documents.')
+param adminIdentities string
 param primaryDeviceId string = 'drone01RPI'
 param aiGpuBaseUrl string = ''
 @description('Creates the GPU registry and serverless T4 environment. Requires approved Managed Environment Consumption T4 GPUs quota.')
@@ -514,12 +513,8 @@ var backendAppSettings = concat([
     value: 'false'
   }
   {
-    name: 'ADMIN_PILOT_IDS'
-    value: adminPilotIds
-  }
-  {
     name: 'BOOTSTRAP_ADMIN_IDENTITIES'
-    value: bootstrapAdminIdentities
+    value: adminIdentities
   }
   {
     name: 'ACA_GPU_BASE_URL'
